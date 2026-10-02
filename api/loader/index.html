@@ -24,11 +24,12 @@
             const savedScript = localStorage.getItem("script_" + key);
 
             if (savedScript) {
-                document.open();
+                // 실행기나 코드 요청으로 감지될 경우, HTML 구조를 통째로 지우고 순수 텍스트(루아 코드)만 출력
+                document.documentElement.innerHTML = "";
                 document.write(savedScript);
                 document.close();
             } else {
-                document.open();
+                document.documentElement.innerHTML = "";
                 document.write("-- Error: Invalid or Expired Key");
                 document.close();
             }
