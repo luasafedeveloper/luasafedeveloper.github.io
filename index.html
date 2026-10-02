@@ -75,8 +75,8 @@
             }
             
             const domain = window.location.origin;
-            // 슬래시(/) 경로 문제 해결된 최종 로더 포맷
-            const loaderCode = `loadstring(game:HttpGet("${domain}/api/loader/?key=${userKey}"))()`;
+            // 줄바꿈 없이 한 줄로 깔끔하게 이어지도록 수정된 코드
+            const loaderCode = 'loadstring(game:HttpGet("' + domain + '/api/loader/?key=' + userKey + '"))()';
             
             document.getElementById('loaderOutput').value = loaderCode;
         }
