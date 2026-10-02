@@ -3,133 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luasafe - Advanced Luau Source Protection</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #3b82f6;
-            --accent-hover: #2563eb;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --border-color: #334155;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        header { text-align: center; margin-bottom: 30px; margin-top: 20px; }
-        header h1 { font-size: 2.2rem; margin-bottom: 8px; background: linear-gradient(90deg, #60a5fa, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        header p { color: var(--text-sub); font-size: 0.95rem; }
-        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .card h2 { font-size: 1.25rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #e2e8f0; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-        textarea, input[type="text"] { width: 100%; background-color: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; resize: vertical; }
-        textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--accent-color); }
-        textarea { min-height: 140px; }
-        .btn { background-color: var(--accent-color); color: white; border: none; border-radius: 8px; padding: 12px 20px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, transform 0.1s; width: 100%; }
-        .btn:hover { background-color: var(--accent-hover); }
-        .btn:active { transform: scale(0.98); }
-        .result-box { margin-top: 15px; background-color: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; position: relative; }
-        .result-box pre { font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; word-break: break-all; max-height: 200px; }
-        .copy-btn { margin-top: 8px; background-color: #334155; font-size: 0.85rem; padding: 6px 12px; width: auto; }
-        .copy-btn:hover { background-color: #475569; }
-        .flex-row { display: flex; gap: 10px; }
-        footer { margin-top: 40px; color: var(--text-sub); font-size: 0.8rem; text-align: center; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>Luasafe</h1>
-        <p>Professional Luau Source Code Protection & License Key System</p>
-    </header>
-
-    <div class="container">
-        <!-- 1. 키 라이선스 발급 카드 -->
-        <div class="card">
-            <h2>🔑 License Key Generator</h2>
-            <div class="form-group">
-                <label>Generated 35-Character Key</label>
-                <div class="flex-row">
-                    <input type="text" id="generatedKey" readonly placeholder="Click generate button below">
-                    <button class="btn" style="width: 140px;" onclick="generateKey()">Generate</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. 소스 보호 및 난독화 카드 -->
-        <div class="card">
-            <h2>🛡️ Script Protector (Obfuscator)</h2>
-            <div class="form-group">
-                <label>Input Your Luau Script</label>
-                <textarea id="sourceInput" placeholder="print('Hello World!')"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Associated License Key (Optional)</label>
-                <input type="text" id="targetKey" placeholder="Enter key required to run this script">
-            </div>
-            <button class="btn" onclick="protectScript()">Protect & Generate Loader</button>
-
-            <div id="outputContainer" style="display: none;">
-                <div class="form-group" style="margin-top: 20px;">
-                    <label>Protected Loader Output</label>
-                    <div class="result-box">
-                        <pre id="outputResult"></pre>
-                    </div>
-                    <button class="btn copy-btn" onclick="copyToClipboard()">Copy Code</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        &copy; 2026 Luasafe. All rights reserved. Secure your scripts efficiently.
-    </footer>
-
-    <script>
-        // 35글자 랜덤 대소문자/영문 키 생성 함수 (숫자 제외 영문 대소문자만 원하실 경우 문자셋 조정 가능)
-        function generateKey() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-            let result = '';
-            for (let i = 0; i < 35; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            document.getElementById('generatedKey').value = result;
-        }
-
-        // 소스 코드 보호 및 래퍼 생성 함수
-        function protectScript() {
-            const source = document.getElementById('sourceInput').value;
-            const key = document.getElementById('targetKey').value.trim();
-
-            if (!source) {
-                alert('Please enter a script to protect.');
-                return;
-            }
-
-            // 소스 코드를 Base64로 인코딩하여 감춤
-            const encodedSource = btoa(unescape(encodeURIComponent(source)));
-
-            // 클라이언트에서 실행될 프로텍터 런타임 템플릿 생성
-            let protectedCode = `-- Protected by Luasafe\n`;
-            if (key) {
-                protectedCode += `local _KEY = "${key}"\n`;
-                protectedCode += `if script_key ~= _KEY then\n    error("Invalid or Missing Script Key!")\nend\n`;
-            }
-            protectedCode += `local _s = "${encodedSource}"\n`;
-            protectedCode += `local function _d(d)\n    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'\n    d=string.gsub(d, '[^'..b..'=]', '')\n    return (d:gsub('.', function(x)\n        if (x == '=') then return '' end\n        local r,f='',(b:find(x)-1)\n        for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end\n        return r;\n    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)\n        if (#x ~= 8) then return '' end\n        GitHub Pages를 통해 무료로 호스팅할 수 있도록, 소스코드 난독화/보호(`luasafe`), 스크립트 관리, 그리고 35자리 랜덤 영문 대소문자 키 라이선스 발급 기능이 포함된 **단일 HTML 파일(`index.html`)** 코드입니다. 
-
-이 코드를 복사해서 GitHub 저장소에 `index.html` 이름으로 업로드하고 GitHub Pages를 켜시면 바로 사이트가 작동합니다.
-
-### 📁 `index.html` 전체 코드
-
-```html
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LuaSafe - Advanced Script Protection & Key System</title>
     <style>
         :root {
@@ -169,32 +42,36 @@
 
 <div class="container">
     <header>
-        <h1>🔒 LuaSafe</h1>
-        <p>Secure Luau Source Code Protection & Key Management System</p>
+        <h1>🔒 루아세이프</h1>
+        <p>Luasafe - Luau 소스 코드 보호 및 라이선스 키 시스템</p>
     </header>
 
-    <!-- 1. 소스코드 입력 및 난독화 영역 -->
+    <!-- 1. 라이선스 키 발급 영역 -->
     <div class="card">
-        <h2>📜 Script Protector (Obfuscator)</h2>
-        <label for="sourceInput">Luau 소스 코드를 입력하세요:</label>
-        <textarea id="sourceInput" rows="6" placeholder="print('Hello World!')"></textarea>
-        <button onclick="protectScript()">보호 및 난독화 생성</button>
-        
-        <label style="margin-top: 15px;">출력 결과 (Protected Loader):</label>
-        <div id="outputProtected" class="output-box">여기에 보호된 스크립트 로더가 표시됩니다.</div>
-        <button class="secondary" onclick="copyText('outputProtected')">결과 복사하기</button>
-    </div>
-
-    <!-- 2. 라이선스 키 발급 영역 -->
-    <div class="card">
-        <h2>🔑 License Key Generator</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">사용자 인증을 위한 35자리 무작위 영문 대소문자 키를 발급합니다.</p>
-        <button onclick="generateKey()">키 발급하기</button>
+        <h2>🔑 라이선스 키 생성기</h2>
+        <label>35자 영문 대소문자 무작위 키를 발급합니다.</label>
+        <button onclick="generateKey()">생성하기</button>
         
         <div style="margin-top: 15px;" class="row">
-            <input type="text" id="keyOutput" readonly placeholder="발급된 키가 여기에 표시됩니다." class="flex-1">
+            <input type="text" id="keyOutput" readonly placeholder="생성 버튼을 누르세요" class="flex-1">
             <button class="secondary" onclick="copyText('keyOutput')" style="margin-top: 0;">키 복사</button>
         </div>
+    </div>
+
+    <!-- 2. 소스코드 보호 및 난독화 영역 -->
+    <div class="card">
+        <h2>🛡️ 스크립트 보호기 (난독화 도구)</h2>
+        <label for="sourceInput">LUAU 스크립트를 입력하세요:</label>
+        <textarea id="sourceInput" rows="6" placeholder="print('Hello World!')"></textarea>
+        
+        <label for="targetKey" style="margin-top: 15px;">관련 라이선스 키 (필수 입력):</label>
+        <input type="text" id="targetKey" placeholder="발급받은 35자리 키를 입력하세요">
+        
+        <button onclick="protectScript()">로더 보호 및 생성</button>
+        
+        <label style="margin-top: 15px;">출력 결과 (Protected Loader):</label>
+        <div id="outputProtected" class="output-box">여기에 보호된 로더 코드가 표시됩니다.</div>
+        <button class="secondary" onclick="copyText('outputProtected')">로더 복사하기</button>
     </div>
 </div>
 
@@ -203,26 +80,165 @@
     function generateKey() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         let result = '';
-        const length = 35;
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < 35; i++) {
             result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         document.getElementById('keyOutput').value = result;
     }
 
-    // 간단한 Base64 및 구조 기반 난독화 시뮬레이터 (LuaSafe 방식)
+    // 키 포함 스크립트 보호 및 로더 생성 함수
     function protectScript() {
-        const code = document.getElementById('sourceInput').value;
-        if (!code.trim()) {
-            alert('보호할 소스 코드를 입력해주세요!');
+        const code = document.getElementById('sourceInput').value.trim();
+        const key = document.getElementById('targetKey').value.trim();
+
+        if (!code) {
+            alert('보호할 루아 소스 코드를 입력해주세요!');
+            return;
+        }
+        if (!key) {
+            alert('스크립트를 실행할 라이선스 키를 입력해주세요!');
             return;
         }
 
-        // 소스코드를 Base64로 인코딩하여 기본적인 뷰어 방지 적용
-        const encoded = btoa(unescape(encodeURIComponent(code)));
-        const protectedCode = `-- Protected by LuaSafe v1.0\n-- Unauthorized distribution is prohibited.\nlocal _s = "${encoded}";\nlocal function _d(data)\n    -- Decryption & Load logic\n    return game:HttpGet("[https://your-backend-api.com/verify?key=](https://your-backend-api.com/verify?key=)" .. tostring(script_key))\nend;\n-- Executing loader\nprint("LuaSafe: Script loaded securely.");`;
+        // 소스코드를 Base64로 인코딩
+        const encodedSource = btoa(unescape(encodeURIComponent(code)));
 
-        document.getElementById('outputProtected').innerText = protectedCode;
+        // 사용자가 요청한 형식으로 스크립트 키와 로더 조합 생성
+        const loaderCode = `scriptkey = "${key}"\n\n-- Protected by Luasafe\nlocal _s = "${encodedSource}";\nlocal function _d(data)\n    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'\n    data = string.gsub(data, '[^'..b..'=]', '')\n    return (data:gsub('.', function(x)\n        if (x == '=') then return '' end\n        local r,f='',(b:find(x)-1)\n        for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end\n        return r;\n    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)\n        if (#x ~= 8) then return '' end\n        local c=0요청하신 대로 **35자리 무작위 영문 키 생성**, **소스 코드 입력**, 그리고 **`scriptkey = "키값"`과 함께 실행 가능한 보호된 로더 형식**으로 출력되도록 수정한 `index.html` 전체 코드입니다.
+
+이 코드를 복사해서 GitHub 저장소(`luasafedeveloper.github.io`)의 `index.html` 파일에 덮어씌우고 저장(Commit)하시면 사이트에 바로 반영됩니다.
+
+### 📄 수정된 `index.html` 전체 코드
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루아세이프 - Luau 소스 코드 보호 및 라이선스 키 시스템</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --accent-color: #238636;
+            --accent-hover: #2ea043;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
+        header { text-align: center; margin-bottom: 10px; }
+        header h1 { font-size: 2rem; color: #fff; margin-bottom: 5px; }
+        header p { color: var(--text-muted); font-size: 0.95rem; }
+        
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .card h2 { font-size: 1.2rem; margin-bottom: 15px; color: #58a6ff; display: flex; align-items: center; gap: 8px; }
+        
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
+        textarea, input { width: 100%; background-color: #0d1117; border: 1px solid var(--border-color); border-radius: 6px; color: #fff; padding: 12px; font-family: monospace; font-size: 0.9rem; resize: vertical; outline: none; }
+        textarea:focus, input:focus { border-color: #58a6ff; }
+        
+        button { background-color: var(--accent-color); color: white; border: none; border-radius: 6px; padding: 10px 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; }
+        button:hover { background-color: var(--accent-hover); }
+        button.secondary { background-color: #21262d; border: 1px solid var(--border-color); color: var(--text-main); }
+        button.secondary:hover { background-color: #30363d; }
+        
+        .output-box { margin-top: 15px; background: #050709; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; max-height: 180px; overflow-y: auto; color: #7ee787; }
+        .row { display: flex; gap: 10px; align-items: center; }
+        .flex-1 { flex: 1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🔒 루아세이프</h1>
+        <p>Luau 소스 코드 보호 및 라이선스 키 시스템 전문가용</p>
+    </header>
+
+    <!-- 1. 라이선스 키 발급 영역 -->
+    <div class="card">
+        <h2>🔑 라이선스 키 생성기</h2>
+        <label>35자 영문 대소문자 무작위 키를 발급합니다.</label>
+        <button onclick="generateKey()">키 생성하기</button>
+        
+        <div style="margin-top: 15px;" class="row">
+            <input type="text" id="keyOutput" readonly placeholder="생성된 키가 여기에 표시됩니다." class="flex-1">
+            <button class="secondary" onclick="copyText('keyOutput')" style="margin-top: 0;">키 복사</button>
+        </div>
+    </div>
+
+    <!-- 2. 스크립트 보호 및 로더 생성 영역 -->
+    <div class="card">
+        <h2>🛡️ 스크립트 보호기 (난독화 도구)</h2>
+        <label for="sourceInput">LUAU 스크립트를 입력하세요:</label>
+        <textarea id="sourceInput" rows="5" placeholder="print('Hello World!')"></textarea>
+        
+        <label for="targetKey" style="margin-top: 15px;">관련 라이선스 키 (선택 사항):</label>
+        <input type="text" id="targetKey" placeholder="발급받은 35자리 키를 입력하세요">
+        
+        <button onclick="protectScript()">로더 보호 및 생성</button>
+        
+        <label style="margin-top: 15px;">출력 결과 (Protected Loader):</label>
+        <div id="outputProtected" class="output-box">로더 결과가 여기에 표시됩니다.</div>
+        <button class="secondary" onclick="copyText('outputProtected')">결과 복사하기</button>
+    </div>
+</div>
+
+<script>
+    // 35자리 영문 대소문자 랜덤 키 생성 함수
+    function generateKey() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        let result = '';
+        for (let i = 0; i < 35; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('keyOutput').value = result;
+    }
+
+    // 소스 보호 및 키 포함 로더 포맷 생성 함수
+    function protectScript() {
+        const code = document.getElementById('sourceInput').value;
+        const key = document.getElementById('targetKey').value.trim();
+
+        if (!code.trim()) {
+            alert('보호할 LUAU 스크립트를 입력해주세요!');
+            return;
+        }
+
+        const encoded = btoa(unescape(encodeURIComponent(code)));
+        const displayKey = key ? key : "NO_KEY_REQUIRED";
+
+        let loaderCode = `scriptkey = "${displayKey}"\n\n`;
+        loaderCode += `-- 루아세이프 보호된 로더\n`;
+        loaderCode += `local _s = "${encoded}";\n`;
+        loaderCode += `local function _d(data)\n`;
+        loaderCode += `    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'\n`;
+        loaderCode += `    data = string.gsub(data, '[^'..b..'=]', '')\n`;
+        loaderCode += `    return (data:gsub('.', function(x)\n`;
+        loaderCode += `        if (x == '=') then return '' end\n`;
+        loaderCode += `        local r,f='',(b:find(x)-1)\n`;
+        loaderCode += `        for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end\n`;
+        loaderCode += `        return r;\n`;
+        loaderCode += `    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)\n`;
+        loaderCode += `        if (#x ~= 8) then return '' end\n`;
+        loaderCode += `        local c=0\n`;
+        loaderCode += `        for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end\n`;
+        loaderCode += `        return string.char(c)\n`;
+        loaderCode += `    end))\n`;
+        loaderCode += `end\n\n`;
+        loaderCode += `local success, result = pcall(function()\n`;
+        loaderCode += `    local decoded = _d(_s)\n`;
+        loaderCode += `    loadstring(decoded)()\n`;
+        loaderCode += `end)\n`;
+        loaderCode += `if not success then\n`;
+        loaderCode += `    warn("[LuaSafe]: Script execution failed - " .. tostring(result))\n`;
+        loaderCode += `end`;
+
+        document.getElementById('outputProtected').innerText = loaderCode;
     }
 
     // 클립보드 복사 함수
@@ -230,7 +246,7 @@
         const el = document.getElementById(elementId);
         let text = el.tagName === 'INPUT' ? el.value : el.innerText;
         
-        if (!text || text.includes('여기에')) {
+        if (!text || text.includes('표시됩니다') || text.includes('결과가')) {
             alert('복사할 내용이 없습니다.');
             return;
         }
