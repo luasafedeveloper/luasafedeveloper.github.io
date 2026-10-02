@@ -62,7 +62,6 @@
                 return;
             }
             
-            // 브라우저 로컬스토리지에 저장 (실제 운영 시 브라우저별 저장이므로 개인 관리용으로 작동)
             localStorage.setItem("script_" + key, source);
             alert("저장 완료! 해당 키로 로더를 생성할 수 있습니다.");
             document.getElementById('newKeyInput').value = '';
@@ -76,7 +75,7 @@
             }
             
             const domain = window.location.origin;
-            // api/loader 주소로 키를 전달하는 로더 생성
+            // 슬래시(/) 경로 문제 해결된 최종 로더 포맷
             const loaderCode = `loadstring(game:HttpGet("${domain}/api/loader/?key=${userKey}"))()`;
             
             document.getElementById('loaderOutput').value = loaderCode;
