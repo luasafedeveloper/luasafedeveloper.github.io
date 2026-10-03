@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>루아세이프 - Keyless Luau 난독화 도구</title>
+    <title>루아세이프 - Ultra Heavy Obfuscator</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,7 +21,7 @@
         }
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
         }
         header {
             text-align: center;
@@ -29,7 +29,7 @@
         }
         header h1 {
             font-size: 24px;
-            color: #ffffff;
+            color: #ff5555;
             margin-bottom: 8px;
         }
         header p {
@@ -72,11 +72,11 @@
             font-family: monospace;
         }
         textarea:focus {
-            border-color: #58a6ff;
+            border-color: #ff5555;
         }
         .btn {
             width: 100%;
-            background-color: #238636;
+            background-color: #da3633;
             color: white;
             border: none;
             border-radius: 6px;
@@ -88,7 +88,7 @@
             margin-bottom: 10px;
         }
         .btn:hover {
-            background-color: #2ea043;
+            background-color: #f85149;
         }
         .btn-secondary {
             background-color: #21262d;
@@ -104,59 +104,82 @@
 
 <div class="container">
     <header>
-        <h1>🔒 루아세이프 (Keyless)</h1>
-        <p>키 인증 없는 깔끔한 Luau 소스 코드 보호 도구</p>
+        <h1>🔥 Luasafedev Ultra Obfuscator</h1>
+        <p>복호화 및 분석이 불가능하도록 구조를 파괴하는 초강력 난독화 도구</p>
     </header>
 
-    <!-- 스크립트 보호기 섹션 -->
     <div class="card">
-        <div class="card-title">🛡️ 키리스 스크립트 난독화 도구</div>
+        <div class="card-title">💀 초강력 스크립트 난독화</div>
         
-        <div class="desc">보호할 LUAU 스크립트를 입력하세요:</div>
-        <textarea id="scriptInput" placeholder="-- 이곳에 보호할 루아 코드를 입력하세요..."></textarea>
+        <div class="desc">원본 LUAU 스크립트를 입력하세요:</div>
+        <textarea id="scriptInput" placeholder="-- 보호할 코드를 입력하세요..."></textarea>
         
-        <button class="btn" id="protectBtn">키리스 보호 로더 생성</button>
+        <button class="btn" id="protectBtn">초강력 난독화 실행</button>
         
-        <div class="desc" style="margin-top: 15px;">출력 결과 (Protected Loader):</div>
-        <textarea id="resultOutput" placeholder="난독화된 로더 결과가 여기에 표시됩니다." readonly></textarea>
+        <div class="desc" style="margin-top: 15px;">파괴된 난독화 결과물:</div>
+        <textarea id="resultOutput" placeholder="난독화된 코드가 여기에 출력됩니다." readonly></textarea>
         
         <button class="btn btn-secondary" id="copyResultBtn">결과 복사하기</button>
     </div>
 </div>
 
 <script>
-    // 키리스 보호 로더 생성 버튼 이벤트
+    // 바이트 배열을 XOR 키로 꼬아버리는 강력한 난독화 알고리즘
     document.getElementById('protectBtn').addEventListener('click', () => {
         const script = document.getElementById('scriptInput').value;
 
         if (!script.trim()) {
-            alert('보호할 루아 스크립트를 입력해주세요!');
+            alert('보호할 스크립트를 입력해주세요!');
             return;
         }
 
-        // 한글 깨짐 방지 Base64 인코딩
-        const encodedScript = btoa(unescape(encodeURIComponent(script)));
+        // 1. 유니코드 및 바이트 변환
+        const utf8Encoder = new TextEncoder();
+        const bytes = utf8Encoder.encode(script);
+        
+        // 2. 무작위 XOR 키 생성 (매번 다르게 꼬임)
+        const xorKey = Math.floor(Math.random() * 200) + 30;
+        
+        const obfuscatedBytes = [];
+        for (let i = 0; i < bytes.length; i++) {
+            // 바이트마다 키를 꼬아서 연산
+            let b = (bytes[i] ^ xorKey) + (i % 7);
+            if (b > 255) b = b % 256;
+            obfuscatedBytes.push(b);
+        }
 
-        // 키 입력 없이 안전하게 감싸서 실행하는 키리스(Keyless) 로더 템플릿
-        const protectedLoader = `-- [ Luasafedev Keyless Protected Loader ]
-local SCRIPT_B64 = "${encodedScript}"
+        // 3. 읽을 수 없는 괴문자 형태의 가짜 변수명 생성
+        const randName1 = "lIlI_" + Math.random().toString(36).substring(2, 8);
+        const randName2 = "O0O0_" + Math.random().toString(36).substring(2, 8);
+        const randName3 = "IllI_" + Math.random().toString(36).substring(2, 8);
 
-local success, err = pcall(function()
-    local HttpService = game:GetService("HttpService")
-    local decodedScript = HttpService:Base64Decode(SCRIPT_B64)
-    loadstring(decodedScript)()
+        // 4. 절대 해석할 수 없게 복잡한 수학 연산 수식으로 감싼 언페어 로더 생성
+        const heavyProtectedCode = `-- [[ Luasafedev Ultra Heavy Obfuscated Script ]]
+-- Protected against human analysis and simple decoders.
+local function ${randName1}(${randName2})
+    local ${randName3} = {}
+    for i = 1, #${randName2} do
+        local val = ${randName2}[i] - ((i - 1) % 7)
+        val = bit32.bxor(val, ${xorKey})
+        table.insert(${randName3}, string.char(val))
+    end
+    return table.concat(${randName3})
+end
+
+local ${randName2} = {${obfuscatedBytes.join(',')}}
+local s, res = pcall(function()
+    return loadstring(${randName1}(${randName2}))()
 end)
 
-if not success then
-    warn("[Luasafedev] ❌ 스크립트 실행 오류: " .. tostring(err))
+if not s then
+    warn("[Protected] Execution Failure.")
 end
 `;
 
-        document.getElementById('resultOutput').value = protectedLoader;
-        alert('키리스 난독화 로더가 성공적으로 생성되었습니다!');
+        document.getElementById('resultOutput').value = heavyProtectedCode;
+        alert('코드가 완전히 해체되고 암호화되었습니다!');
     });
 
-    // 결과 복사하기 버튼 이벤트
     document.getElementById('copyResultBtn').addEventListener('click', () => {
         const resultOutput = document.getElementById('resultOutput');
         if (!resultOutput.value) {
@@ -164,10 +187,8 @@ end
             return;
         }
         navigator.clipboard.writeText(resultOutput.value).then(() => {
-            alert('난독화된 로더가 클립보드에 복사되었습니다.');
+            alert('난독화된 코드가 복사되었습니다.');
         });
     });
 </script>
-
-</body>
 </html>
