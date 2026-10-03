@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>루아세이프 - Luau 소스 코드 보호 및 라이선스 키 시스템</title>
+    <title>루아세이프 - Keyless Luau 난독화 도구</title>
     <style>
         * {
             box-sizing: border-box;
@@ -55,9 +55,9 @@
         .desc {
             font-size: 12px;
             color: #8b949e;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
-        input[type="text"], textarea {
+        textarea {
             width: 100%;
             background-color: #0d1117;
             border: 1px solid #30363d;
@@ -67,13 +67,11 @@
             font-size: 13px;
             margin-bottom: 12px;
             outline: none;
-        }
-        textarea {
             resize: vertical;
-            height: 120px;
+            height: 140px;
             font-family: monospace;
         }
-        input[type="text"]:focus, textarea:focus {
+        textarea:focus {
             border-color: #58a6ff;
         }
         .btn {
@@ -100,120 +98,65 @@
         .btn-secondary:hover {
             background-color: #30363d;
         }
-        .row {
-            display: flex;
-            gap: 10px;
-        }
-        .row input {
-            flex: 1;
-            margin-bottom: 0;
-        }
-        .row .btn {
-            width: 110px;
-            margin-bottom: 0;
-        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>🔒 루아세이프</h1>
-        <p>Luau 소스 코드 보호 및 라이선스 키 시스템</p>
+        <h1>🔒 루아세이프 (Keyless)</h1>
+        <p>키 인증 없는 깔끔한 Luau 소스 코드 보호 도구</p>
     </header>
-
-    <!-- 라이선스 키 생성기 섹션 -->
-    <div class="card">
-        <div class="card-title">🔑 라이선스 키 생성기</div>
-        <div class="desc">35자 영문 대소문자 무작위 키를 발급합니다.</div>
-        <button class="btn" id="generateKeyBtn">키 생성하기</button>
-        <div class="row">
-            <input type="text" id="keyInput" placeholder="생성 버튼을 누르세요" readonly>
-            <button class="btn btn-secondary" id="copyKeyBtn">키 복사</button>
-        </div>
-    </div>
 
     <!-- 스크립트 보호기 섹션 -->
     <div class="card">
-        <div class="card-title">🛡️ 스크립트 보호기 (난독화 도구)</div>
-        <div class="desc">LUAU 스크립트를 입력하세요:</div>
+        <div class="card-title">🛡️ 키리스 스크립트 난독화 도구</div>
+        
+        <div class="desc">보호할 LUAU 스크립트를 입력하세요:</div>
         <textarea id="scriptInput" placeholder="-- 이곳에 보호할 루아 코드를 입력하세요..."></textarea>
         
-        <div class="desc">관련 라이선스 키 (필수 입력):</div>
-        <input type="text" id="licenseInput" placeholder="라이선스 키를 입력하세요">
-        
-        <button class="btn" id="protectBtn">로더 보호 및 생성</button>
+        <button class="btn" id="protectBtn">키리스 보호 로더 생성</button>
         
         <div class="desc" style="margin-top: 15px;">출력 결과 (Protected Loader):</div>
-        <textarea id="resultOutput" placeholder="로더 결과가 여기에 표시됩니다." readonly></textarea>
+        <textarea id="resultOutput" placeholder="난독화된 로더 결과가 여기에 표시됩니다." readonly></textarea>
         
-        <button class="btn btn-secondary" id="copyResultBtn" style="margin-top: 10px;">결과 복사하기</button>
+        <button class="btn btn-secondary" id="copyResultBtn">결과 복사하기</button>
     </div>
 </div>
 
 <script>
-    // 35자 무작위 키 생성 함수
-    function generateRandomKey() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < 35; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
-    }
-
-    // 1. 키 생성하기 버튼
-    document.getElementById('generateKeyBtn').addEventListener('click', () => {
-        const newKey = generateRandomKey();
-        document.getElementById('keyInput').value = newKey;
-        document.getElementById('licenseInput').value = newKey; // 편의상 라이선스 입력란에도 자동 채우기
-    });
-
-    // 2. 키 복사 버튼
-    document.getElementById('copyKeyBtn').addEventListener('click', () => {
-        const keyInput = document.getElementById('keyInput');
-        if (!keyInput.value) {
-            alert('생성된 키가 없습니다!');
-            return;
-        }
-        navigator.clipboard.writeText(keyInput.value).then(() => {
-            alert('라이선스 키가 클립보드에 복사되었습니다.');
-        });
-    });
-
-    // 3. 로더 보호 및 생성 버튼
+    // 키리스 보호 로더 생성 버튼 이벤트
     document.getElementById('protectBtn').addEventListener('click', () => {
         const script = document.getElementById('scriptInput').value;
-        const licenseKey = document.getElementById('licenseInput').value;
 
         if (!script.trim()) {
             alert('보호할 루아 스크립트를 입력해주세요!');
             return;
         }
-        if (!licenseKey.trim()) {
-            alert('라이선스 키를 입력해주세요!');
-            return;
-        }
 
-        // 간단한 보호 로더 템플릿 생성 예시
-        const protectedLoader = `-- Luasafedev Protected Loader
-local KEY = "${licenseKey}"
-local SCRIPT_CONTENT = "${btoa(encodeURIComponent(script))}"
+        // 한글 깨짐 방지 Base64 인코딩
+        const encodedScript = btoa(unescape(encodeURIComponent(script)));
 
-if not getgenv().LuasafedevAuth or getgenv().LuasafedevAuth ~= KEY then
-    warn("[Luasafedev] Invalid or Missing License Key!")
-    return
+        // 키 입력 없이 안전하게 감싸서 실행하는 키리스(Keyless) 로더 템플릿
+        const protectedLoader = `-- [ Luasafedev Keyless Protected Loader ]
+local SCRIPT_B64 = "${encodedScript}"
+
+local success, err = pcall(function()
+    local HttpService = game:GetService("HttpService")
+    local decodedScript = HttpService:Base64Decode(SCRIPT_B64)
+    loadstring(decodedScript)()
+end)
+
+if not success then
+    warn("[Luasafedev] ❌ 스크립트 실행 오류: " .. tostring(err))
 end
-
-print("[Luasafedev] Successfully Authorized!")
-loadstring(game:HttpGet("https://your-backend-endpoint/verify?key=" .. KEY))()
 `;
 
         document.getElementById('resultOutput').value = protectedLoader;
-        alert('로더가 성공적으로 생성되었습니다!');
+        alert('키리스 난독화 로더가 성공적으로 생성되었습니다!');
     });
 
-    // 4. 결과 복사하기 버튼
+    // 결과 복사하기 버튼 이벤트
     document.getElementById('copyResultBtn').addEventListener('click', () => {
         const resultOutput = document.getElementById('resultOutput');
         if (!resultOutput.value) {
@@ -221,7 +164,7 @@ loadstring(game:HttpGet("https://your-backend-endpoint/verify?key=" .. KEY))()
             return;
         }
         navigator.clipboard.writeText(resultOutput.value).then(() => {
-            alert('보호된 로더 결과가 클립보드에 복사되었습니다.');
+            alert('난독화된 로더가 클립보드에 복사되었습니다.');
         });
     });
 </script>
