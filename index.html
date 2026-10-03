@@ -1,162 +1,230 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>루아세이프 - Luau 소스 코드 보호 및 라이선스 키 시스템</title>
-<style>
-:root {
---bg-color: #0d1117;
---card-bg: #161b22;
---border-color: #30363d;
---accent-color: #238636;
---accent-hover: #2ea043;
---text-main: #c9d1d9;
---text-muted: #8b949e;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; display: flex; justify-content: center; }
-.container { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
-header { text-align: center; margin-bottom: 10px; }
-header h1 { font-size: 2rem; color: #fff; margin-bottom: 5px; }
-header p { color: var(--text-muted); font-size: 0.95rem; }
-
-.card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-.card h2 { font-size: 1.2rem; margin-bottom: 15px; color: #58a6ff; display: flex; align-items: center; gap: 8px; }
-
-label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); }
-textarea, input { width: 100%; background-color: #0d1117; border: 1px solid var(--border-color); border-radius: 6px; color: #fff; padding: 12px; font-family: monospace; font-size: 0.9rem; resize: vertical; outline: none; }
-textarea:focus, input:focus { border-color: #58a6ff; }
-
-button { background-color: var(--accent-color); color: white; border: none; border-radius: 6px; padding: 10px 16px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; width: 100%; }
-button:hover { background-color: var(--accent-hover); }
-button.secondary { background-color: #21262d; border: 1px solid var(--border-color); color: var(--text-main); width: auto; }
-button.secondary:hover { background-color: #30363d; }
-
-.output-box { margin-top: 15px; background: #050709; border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; max-height: 180px; overflow-y: auto; color: #7ee787; }
-.row { display: flex; gap: 10px; align-items: center; }
-.flex-1 { flex: 1; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>루아세이프 - Luau 소스 코드 보호 및 라이선스 키 시스템</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        header h1 {
+            font-size: 24px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        header p {
+            font-size: 13px;
+            color: #8b949e;
+        }
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .desc {
+            font-size: 12px;
+            color: #8b949e;
+            margin-bottom: 12px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            color: #c9d1d9;
+            font-size: 13px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        textarea {
+            resize: vertical;
+            height: 120px;
+            font-family: monospace;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: #58a6ff;
+        }
+        .btn {
+            width: 100%;
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            background-color: #2ea043;
+        }
+        .btn-secondary {
+            background-color: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .btn-secondary:hover {
+            background-color: #30363d;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .row .btn {
+            width: 110px;
+            margin-bottom: 0;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-<header>
-<h1>🔒 루아세이프</h1>
-<p>Luau 소스 코드 보호 및 라이선스 키 시스템</p>
-</header>
+    <header>
+        <h1>🔒 루아세이프</h1>
+        <p>Luau 소스 코드 보호 및 라이선스 키 시스템</p>
+    </header>
 
-<!-- 1. 라이선스 키 발급 영역 -->
-<div class="card">
-<h2>🔑 라이선스 키 생성기</h2>
-<label>35자 영문 대소문자 무작위 키를 발급합니다.</label>
-<button onclick="generateKey()">키 생성하기</button>
+    <!-- 라이선스 키 생성기 섹션 -->
+    <div class="card">
+        <div class="card-title">🔑 라이선스 키 생성기</div>
+        <div class="desc">35자 영문 대소문자 무작위 키를 발급합니다.</div>
+        <button class="btn" id="generateKeyBtn">키 생성하기</button>
+        <div class="row">
+            <input type="text" id="keyInput" placeholder="생성 버튼을 누르세요" readonly>
+            <button class="btn btn-secondary" id="copyKeyBtn">키 복사</button>
+        </div>
+    </div>
 
-<div style="margin-top: 15px;" class="row">
-<input type="text" id="keyOutput" readonly placeholder="생성 버튼을 누르세요" class="flex-1">
-<button class="secondary" onclick="copyText('keyOutput')" style="margin-top: 0;">키 복사</button>
-</div>
-</div>
-
-<!-- 2. 스크립트 보호 및 로더 생성 영역 -->
-<div class="card">
-<h2>🛡️ 스크립트 보호기 (난독화 도구)</h2>
-<label for="sourceInput">LUAU 스크립트를 입력하세요:</label>
-<textarea id="sourceInput" rows="5" placeholder="print('Hello World!')"></textarea>
-
-<label for="targetKey" style="margin-top: 15px;">관련 라이선스 키 (필수 입력):</label>
-<input type="text" id="targetKey" placeholder="발급받은 35자리 키를 입력하세요">
-
-<button onclick="protectScript()">로더 보호 및 생성</button>
-
-<label style="margin-top: 15px;">출력 결과 (Protected Loader):</label>
-<div id="outputProtected" class="output-box">로더 결과가 여기에 표시됩니다.</div>
-<button class="secondary" onclick="copyText('outputProtected')" style="margin-top: 10px;">결과 복사하기</button>
-</div>
+    <!-- 스크립트 보호기 섹션 -->
+    <div class="card">
+        <div class="card-title">🛡️ 스크립트 보호기 (난독화 도구)</div>
+        <div class="desc">LUAU 스크립트를 입력하세요:</div>
+        <textarea id="scriptInput" placeholder="-- 이곳에 보호할 루아 코드를 입력하세요..."></textarea>
+        
+        <div class="desc">관련 라이선스 키 (필수 입력):</div>
+        <input type="text" id="licenseInput" placeholder="라이선스 키를 입력하세요">
+        
+        <button class="btn" id="protectBtn">로더 보호 및 생성</button>
+        
+        <div class="desc" style="margin-top: 15px;">출력 결과 (Protected Loader):</div>
+        <textarea id="resultOutput" placeholder="로더 결과가 여기에 표시됩니다." readonly></textarea>
+        
+        <button class="btn btn-secondary" id="copyResultBtn" style="margin-top: 10px;">결과 복사하기</button>
+    </div>
 </div>
 
 <script>
-// 35자리 영문 대소문자 랜덤 키 생성 함수
-function generateKey() {
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-let result = '';
-for (let i = 0; i < 35; i++) {
-result += chars.charAt(Math.floor(Math.random() * chars.length));
-}
-document.getElementById('keyOutput').value = result;
-}
+    // 35자 무작위 키 생성 함수
+    function generateRandomKey() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < 35; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
 
-// 소스 보호 및 키 포함 로더 포맷 생성 함수
-function protectScript() {
-const codeInput = document.getElementById('sourceInput');
-const keyInput = document.getElementById('targetKey');
-const outputBox = document.getElementById('outputProtected');
+    // 1. 키 생성하기 버튼
+    document.getElementById('generateKeyBtn').addEventListener('click', () => {
+        const newKey = generateRandomKey();
+        document.getElementById('keyInput').value = newKey;
+        document.getElementById('licenseInput').value = newKey; // 편의상 라이선스 입력란에도 자동 채우기
+    });
 
-const code = codeInput ? codeInput.value : '';
-const key = keyInput ? keyInput.value.trim() : '';
+    // 2. 키 복사 버튼
+    document.getElementById('copyKeyBtn').addEventListener('click', () => {
+        const keyInput = document.getElementById('keyInput');
+        if (!keyInput.value) {
+            alert('생성된 키가 없습니다!');
+            return;
+        }
+        navigator.clipboard.writeText(keyInput.value).then(() => {
+            alert('라이선스 키가 클립보드에 복사되었습니다.');
+        });
+    });
 
-if (!code) {
-alert('보호할 LUAU 스크립트를 입력해주세요!');
-return;
-}
-if (!key) {
-alert('스크립트를 실행할 라이선스 키를 입력해주세요!');
-return;
-}
+    // 3. 로더 보호 및 생성 버튼
+    document.getElementById('protectBtn').addEventListener('click', () => {
+        const script = document.getElementById('scriptInput').value;
+        const licenseKey = document.getElementById('licenseInput').value;
 
-try {
-// Base64 인코딩
-const encoded = btoa(unescape(encodeURIComponent(code)));
+        if (!script.trim()) {
+            alert('보호할 루아 스크립트를 입력해주세요!');
+            return;
+        }
+        if (!licenseKey.trim()) {
+            alert('라이선스 키를 입력해주세요!');
+            return;
+        }
 
-// 요청하신 포맷으로 로더 생성
-let loaderCode = scriptkey = "${key}"\n\n; loaderCode +=-- Protected by LuaSafe\n; loaderCode +=local _s = "${encoded}";\n;
-loaderCode += local function _d(data)\n;
-loaderCode += local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'\n;
-loaderCode += data = string.gsub(data, '[^'..b..'=]', '')\n;
-loaderCode += return (data:gsub('.', function(x)\n;
-loaderCode += if (x == '=') then return '' end\n;
-loaderCode += local r,f='',(b:find(x)-1)\n;
-loaderCode += for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)&gt;0 and '1' or '0') end\n;
-loaderCode += return r;\n;
-loaderCode += end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)\n;
-loaderCode += if (#x ~= 8) then return '' end\n;
-loaderCode += local c=0\n;
-loaderCode += for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end\n;
-loaderCode += return string.char(c)\n;
-loaderCode += end))\n;
-loaderCode += end\n\n;
-loaderCode += local success, result = pcall(function()\n;
-loaderCode += local decoded = _d(_s)\n;
-loaderCode += loadstring(decoded)()\n;
-loaderCode += end)\n;
-loaderCode += if not success then\n;
-loaderCode += warn("[LuaSafe]: Execution failed - " .. tostring(result))\n;
-loaderCode += end;
+        // 간단한 보호 로더 템플릿 생성 예시
+        const protectedLoader = `-- Luasafedev Protected Loader
+local KEY = "${licenseKey}"
+local SCRIPT_CONTENT = "${btoa(encodeURIComponent(script))}"
 
-outputBox.innerText = loaderCode;
-} catch (e) {
-alert('인코딩 중 오류가 발생했습니다: ' + e.message);
-}
-}
+if not getgenv().LuasafedevAuth or getgenv().LuasafedevAuth ~= KEY then
+    warn("[Luasafedev] Invalid or Missing License Key!")
+    return
+end
 
-// 클립보드 복사 함수
-function copyText(elementId) {
-const el = document.getElementById(elementId);
-let text = el.tagName === 'INPUT' ? el.value : el.innerText;
+print("[Luasafedev] Successfully Authorized!")
+loadstring(game:HttpGet("https://your-backend-endpoint/verify?key=" .. KEY))()
+`;
 
-if (!text || text.includes('표시됩니다') || text.includes('결과가') || text.includes('누르세요')) {
-alert('복사할 내용이 없습니다.');
-return;
-}
+        document.getElementById('resultOutput').value = protectedLoader;
+        alert('로더가 성공적으로 생성되었습니다!');
+    });
 
-navigator.clipboard.writeText(text).then(() => {
-alert('클립보드에 복사되었습니다!');
-}).catch(err => {
-alert('복사 실패: ' + err);
-});
-}
+    // 4. 결과 복사하기 버튼
+    document.getElementById('copyResultBtn').addEventListener('click', () => {
+        const resultOutput = document.getElementById('resultOutput');
+        if (!resultOutput.value) {
+            alert('복사할 결과가 없습니다!');
+            return;
+        }
+        navigator.clipboard.writeText(resultOutput.value).then(() => {
+            alert('보호된 로더 결과가 클립보드에 복사되었습니다.');
+        });
+    });
 </script>
 
 </body>
 </html>
-
